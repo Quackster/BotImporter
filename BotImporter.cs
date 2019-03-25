@@ -77,6 +77,7 @@ namespace BotImporter
                 );
 
                 bot.printValues();
+                bot.save();
             }
             catch (Exception ex)
             {

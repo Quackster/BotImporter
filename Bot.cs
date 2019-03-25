@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,36 @@ namespace BotImporter
         {
             string json = JsonConvert.SerializeObject(this);
             Console.WriteLine("[JSON] " + json);
+        }
+
+        internal void save()
+        {
+            var databaseString = new MySqlConnectionStringBuilder();
+            databaseString.Server = "localhost";
+            databaseString.Port = 3306;
+            databaseString.UserID = "root";
+            databaseString.Password = "123";
+            databaseString.Database = "dev";
+            databaseString.MinimumPoolSize = 5;
+            databaseString.MaximumPoolSize = 10;
+            databaseString.SslMode = MySqlSslMode.None;
+
+            string[] coords = Location.Split(' ');
+
+            using (MySqlConnection conn = new MySqlConnection(databaseString.ToString()))
+            {
+                conn.Open();
+                MySqlCommand cmd = new MySqlCommand("INSERT INTO rooms_bots (name, mission, x, y, start_look, figure, walkspace, roomname) VALUES (@name, @mission, @x, @y, @start_look, @figure, @walkspace, @roomname)", conn);
+                cmd.Parameters.AddWithValue("@name", Name);
+                cmd.Parameters.AddWithValue("@mission", Mission);
+                cmd.Parameters.AddWithValue("@x", int.Parse(coords[0]));
+                cmd.Parameters.AddWithValue("@y", int.Parse(coords[1]));
+                cmd.Parameters.AddWithValue("@start_look", Look);
+                cmd.Parameters.AddWithValue("@figure", Figure);
+                cmd.Parameters.AddWithValue("@walkspace", Walkspace);
+                cmd.Parameters.AddWithValue("@roomname", RoomName);
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 }
